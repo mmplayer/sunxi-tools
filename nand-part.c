@@ -114,7 +114,7 @@ MBR *_get_mbr(int fd, int mbr_num)
 			printf("OK\n");
 			return mbr;
 		}
-		printf("BAD!\n");
+		printf("BAD! %x, %x\n", *(__u32 *)mbr,  calc_crc32((__u32 *)mbr + 1,MBR_SIZE - 4));
 	}
 	return NULL;
 }

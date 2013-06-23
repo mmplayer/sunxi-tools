@@ -25,6 +25,8 @@ $(TOOLS): Makefile common.h
 fex2bin bin2fex: fexc
 	ln -s $< $@
 
+nand-part: nand-part.h nand-part.c
+
 fexc: fexc.h script.h script.c \
 	script_uboot.h script_uboot.c \
 	script_bin.h script_bin.c \
