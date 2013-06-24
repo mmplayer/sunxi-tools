@@ -55,6 +55,8 @@
 
 #define MAX_NAME 16
 
+void printmbrheader(MBR *mbr);
+
 typedef struct tag_CRC32_DATA
 {
 	__u32 CRC;				//int的大小是32位
@@ -109,6 +111,7 @@ MBR *_get_mbr(int fd, int mbr_num)
 	{
 		/*checksum*/
 		printf("check partition table copy %d: ", mbr_num);
+		printmbrheader(mbr);
 		if(*(__u32 *)mbr == calc_crc32((__u32 *)mbr + 1,MBR_SIZE - 4))
 		{
 			printf("OK\n");
@@ -130,20 +133,28 @@ __s32 _free_mbr(MBR *mbr)
 	return 0;
 }
 
+void printmbrheader(MBR *mbr)
+{
+	printf("mbr: version 0x%08x, magic %8.8s, stamp %i\n", mbr->version, mbr->magic, mbr->stamp[0]);
+}
+
 void printmbr(MBR *mbr)
 {
 	int part_cnt;
+	
+	printmbrheader(mbr);
 	for(part_cnt = 0; part_cnt < mbr->PartCount && part_cnt < MAX_PART_COUNT; part_cnt++)
 	{
 		if(1 || (mbr->array[part_cnt].user_type == 2) || (mbr->array[part_cnt].user_type == 0))
 		{
-			printf("partition %2d: class = %12s, name = %12s, partition start = %8d, partition size = %8d user_type=%d\n",
+			printf("partition %2d: class = %12s, name = %12s, partition start = %8d, partition size = %8di, user_type=%d, key=0x%08x\n",
 						part_cnt,
 						mbr->array[part_cnt].classname,
 						mbr->array[part_cnt].name,
 						mbr->array[part_cnt].addrlo,
 						mbr->array[part_cnt].lenlo,
-						mbr->array[part_cnt].user_type);
+						mbr->array[part_cnt].user_type,
+						mbr->array[part_cnt].keydata);
 		}
 	}
 }
@@ -225,11 +236,13 @@ int writembrs(int fd, char names[][MAX_NAME], __u32 *lens, unsigned int *user_ty
 
 	// don't muck with first partition
 	mbr->PartCount = nparts + 1;
+	mbr->stamp[0] = 0;
 	start = mbr->array[0].addrlo + mbr->array[0].lenlo;
 	for(i = 0; i < nparts; i++) {
 		strcpy((char *)mbr->array[i+1].name, names[i]);
 		strcpy((char *)mbr->array[i+1].classname, "DISK");
 		memset((void *) mbr->array[i+1].res, 0, sizeof(mbr->array[i+1].res));
+		mbr->array[i+1].keydata = 0;
 		mbr->array[i+1].user_type = user_types[i];
 		mbr->array[i+1].ro = 0;
 		mbr->array[i+1].addrhi = 0;
