@@ -5,6 +5,7 @@ CFLAGS += -Iinclude/
 
 TOOLS = fexc bin2fex fex2bin bootinfo fel pio
 TOOLS += nand-part
+TOOLS += nand-part2
 
 MISC_TOOLS = phoenix_info
 
