@@ -41,7 +41,7 @@ nand-part: nand-part-main.c nand-part.c nand-part-a10.h nand-part-a20.h
 	$(CC) $(CFLAGS) -c -o nand-part-main.o nand-part-main.c
 	$(CC) $(CFLAGS) -c -o nand-part-a10.o nand-part.c -D A10
 	$(CC) $(CFLAGS) -c -o nand-part-a20.o nand-part.c -D A20
-	$(CC) $(LDFLAGS) -o $@ nand-part-main.o nand-part-a10.o nand-part-a20.o $(LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ nand-part-main.o nand-part-a10.o nand-part-a20.o $(LIBS)
 
 %: %.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.c,$^) $(LIBS)
